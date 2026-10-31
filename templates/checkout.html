@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% from "_macros.html" import form_field %}
+{% block title %}Checkout{% endblock %}
+{% block content %}
+  <section class="page-wrap">
+    <a class="back-link" href="{{ url_for('view_cart') }}">&larr; Back to cart</a>
+    <div class="page-heading"><p class="eyebrow">THE LAST STEP BEFORE YOUR NEXT BUILD</p><h1>Checkout</h1></div>
+    <div class="commerce-layout">
+      <form method="post" class="checkout-form panel">
+        {{ form.hidden_tag() }}
+        {% for error in form.checkout_key.errors %}<p class="field-error">{{ error }} Please reload checkout.</p>{% endfor %}
+        <h2>Delivery details</h2>
+        <p class="muted">Use fictional contact details for this academic demo.</p>
+        <div class="form-grid">
+          {{ form_field(form.full_name, "name") }}
+          {{ form_field(form.email, "email") }}
+          <div class="span-two">{{ form_field(form.address, "street-address") }}</div>
+          {{ form_field(form.city, "address-level2") }}
+          {{ form_field(form.postal_code, "postal-code") }}
+          <div class="span-two">{{ form_field(form.country, "country-name") }}</div>
+        </div>
+        <div class="payment-note"><strong>Pay on delivery &middot; demo only</strong><p>No card details, no payment gateway, and no real shipment. This creates a local order for the project demonstration.</p></div>
+        {{ form.submit(class_="button button-accent full-width") }}
+      </form>
+      <aside class="order-summary">
+        <h2>Your order</h2>
+        {% for entry in entries %}
+          <div class="summary-product"><div><strong>{{ entry.board.name }}</strong><span>Qty {{ entry.quantity }} &times; {{ entry.board.price_cents|money }}</span></div><strong>{{ entry.total_cents|money }}</strong></div>
+        {% endfor %}
+        <div class="summary-row"><span>Demo delivery</span><span>Free</span></div>
+        <div class="summary-row summary-total"><span>Total</span><strong>{{ total_cents|money }} <small>USD</small></strong></div>
+        <p class="summary-note">All amounts are sample prices, not official STMicroelectronics quotations.</p>
+      </aside>
+    </div>
+  </section>
+{% endblock %}

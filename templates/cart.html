@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Your cart{% endblock %}
+{% block content %}
+  <section class="page-wrap">
+    <a class="back-link" href="{{ url_for('dashboard') }}#catalog">&larr; Continue shopping</a>
+    <div class="page-heading"><p class="eyebrow">ONE STEP CLOSER TO YOUR NEXT BUILD</p><h1>Your cart<span class="heading-count">{{ cart_count }}</span></h1></div>
+    {% if entries %}
+      <div class="commerce-layout">
+        <div class="cart-items">
+          {% for entry in entries %}
+            <article class="cart-item">
+              <div class="cart-device" aria-hidden="true">{{ entry.board.family[5:] }}</div>
+              <div class="cart-item-info">
+                <h2><a href="{{ url_for('board_detail', board_id=entry.board.id) }}">{{ entry.board.name }}</a></h2>
+                <p>{{ entry.board.mcu }}</p>
+                <span>{{ entry.board.price_cents|money }} / unit</span>
+                {% if not entry.available %}<p class="field-error">Not enough stock, or this product is no longer available. Update or remove it to continue.</p>{% endif %}
+              </div>
+              <div class="cart-controls">
+                <form class="quantity-form" method="post" action="{{ url_for('update_cart', board_id=entry.board.id) }}">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <label class="sr-only" for="quantity-{{ entry.board.id }}">Quantity for {{ entry.board.name }}</label>
+                  <input id="quantity-{{ entry.board.id }}" type="number" name="quantity" min="1" max="50" value="{{ entry.quantity }}" required>
+                  <button class="button button-outline button-small" type="submit">Update</button>
+                </form>
+                <form method="post" action="{{ url_for('remove_from_cart', board_id=entry.board.id) }}">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <button class="text-button" type="submit" aria-label="Remove {{ entry.board.name }}">Remove</button>
+                </form>
+              </div>
+              <strong class="line-total">{{ entry.total_cents|money }}</strong>
+            </article>
+          {% endfor %}
+        </div>
+        <aside class="order-summary">
+          <h2>Order summary</h2>
+          <div class="summary-row"><span>Subtotal</span><strong>{{ total_cents|money }}</strong></div>
+          <div class="summary-row"><span>Demo delivery</span><span>Free</span></div>
+          <div class="summary-row summary-total"><span>Total</span><strong>{{ total_cents|money }} <small>USD</small></strong></div>
+          {% if can_checkout %}
+            <a class="button button-accent full-width" href="{{ url_for('checkout') }}">Continue to checkout &rarr;</a>
+          {% else %}
+            <button class="button button-dark full-width" disabled>Review unavailable items</button>
+          {% endif %}
+          <p class="summary-note">No payment is collected. Stock and prices are checked again when you place your demo order.</p>
+        </aside>
+      </div>
+    {% else %}
+      <div class="empty-state"><span class="empty-symbol" aria-hidden="true">[ 0 ]</span><h2>Your next project is waiting.</h2><p>Add an STM32 device to start building your cart.</p><a class="button button-accent" href="{{ url_for('dashboard') }}#catalog">Explore STM32 devices &rarr;</a></div>
+    {% endif %}
+  </section>
+{% endblock %}

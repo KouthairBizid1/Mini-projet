@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% from "_macros.html" import product_art %}
+{% block title %}{{ board.name }}{% endblock %}
+{% block content %}
+  <section class="page-wrap">
+    <a class="back-link" href="{{ url_for('dashboard') }}#catalog">&larr; All STM32 devices</a>
+    <div class="product-detail">
+      {{ product_art(board, large=true) }}
+      <div class="product-detail-copy">
+        <p class="eyebrow">STMICROELECTRONICS / {{ board.family }}</p>
+        <h1>{{ board.name }}</h1>
+        <p class="detail-mcu">{{ board.mcu }} &middot; {{ board.architecture }}</p>
+        <p class="detail-lede">{{ board.description }}</p>
+        <div class="detail-price"><strong>{{ board.price_cents|money }}</strong><span>USD &middot; demo price</span></div>
+        <p class="availability{% if not board.stock %} unavailable{% endif %}">{% if board.stock %}In stock &mdash; {{ board.stock }} available{% else %}Currently out of stock{% endif %}</p>
+        <form class="purchase-form" method="post" action="{{ url_for('add_to_cart', board_id=board.id) }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <div><label for="quantity">Quantity</label><input id="quantity" name="quantity" type="number" min="1" max="{{ [board.stock, 50]|min if board.stock else 1 }}" value="1" required{% if not board.stock %} disabled{% endif %}></div>
+          <button class="button button-accent" type="submit"{% if not board.stock %} disabled{% endif %}>{% if board.stock %}Add to cart &rarr;{% else %}Sold out{% endif %}</button>
+        </form>
+        <p class="purchase-note">Demo checkout &middot; no real payment or shipment</p>
+      </div>
+    </div>
+    <section class="detail-specs" aria-label="Technical specifications">
+      <div><span>Core</span><strong>{{ board.architecture }}</strong></div>
+      <div><span>Clock speed</span><strong>{{ "%g"|format(board.clock_mhz) }} MHz</strong></div>
+      <div><span>Flash memory</span><strong>{{ board.flash_kb }} KB</strong></div>
+      <div><span>Core count</span><strong>{{ board.cores }}</strong></div>
+    </section>
+
+    <details class="firmware-section">
+      <summary>Private firmware files <span>Keep builds for this device with your account</span></summary>
+      <div class="firmware-content">
+        {% if current_user.is_authenticated %}
+          <p class="muted">Upload your own builds for this STM32 board. Files are visible only to you and store administrators.</p>
+          <form class="upload-panel" method="post" enctype="multipart/form-data" action="{{ url_for('upload_firmware', board_id=board.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-field"><label for="firmware-label">Build label</label><input id="firmware-label" name="label" maxlength="100" placeholder="e.g. blink-v1.2" required></div>
+            <div class="form-field"><label for="firmware-file">Firmware (.bin, .elf, .hex, .uf2)</label><input id="firmware-file" name="firmware" type="file" accept=".bin,.elf,.hex,.uf2" required></div>
+            <button class="button button-outline" type="submit">Upload firmware</button>
+            <p class="upload-hint">Maximum upload request: 10 MB.</p>
+          </form>
+          {% for item in uploads %}
+            <article class="firmware-item">
+              <span class="file-badge">{{ item.original_name.rsplit('.', 1)[-1]|upper }}</span>
+              <div class="firmware-info"><strong>{{ item.label }}</strong><span>{{ item.original_name }} &middot; {{ item.created_at.strftime("%b %d, %Y") }}{% if current_user.is_admin %} &middot; {{ item.uploader.username }}{% endif %}</span></div>
+              <a class="button button-outline button-small" href="{{ url_for('download_firmware', firmware_id=item.id) }}">Download</a>
+            </article>
+          {% else %}
+            <p class="empty-inline">No firmware files yet.</p>
+          {% endfor %}
+        {% else %}
+          <p class="muted">Sign in to upload and download your private STM32 firmware builds.</p>
+          <a class="button button-outline" href="{{ url_for('login', next=request.path) }}">Sign in</a>
+        {% endif %}
+      </div>
+    </details>
+  </section>
+{% endblock %}

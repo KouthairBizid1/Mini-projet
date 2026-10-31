@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Sign in{% endblock %}
+{% block content %}
+  <section class="auth-layout">
+    <div class="auth-intro"><p class="eyebrow">YOUR NEXT BUILD STARTS HERE</p><h1>Back to<br>building things.</h1><p>Sign in to check out, follow your STM32 orders, and keep your firmware files together.</p></div>
+    <div class="auth-card">
+      <p class="eyebrow">WELCOME BACK</p><h2>Sign in</h2>
+      <form method="post" class="auth-form">
+        {{ form.hidden_tag() }}
+        <label for="{{ form.username.id }}">Username</label>
+        {{ form.username(autocomplete="username", placeholder="Your username") }}
+        {% for error in form.username.errors %}<span class="field-error">{{ error }}</span>{% endfor %}
+        <label for="{{ form.password.id }}">Password</label>
+        {{ form.password(autocomplete="current-password", placeholder="Your password") }}
+        {% for error in form.password.errors %}<span class="field-error">{{ error }}</span>{% endfor %}
+        {{ form.submit(class_="button button-dark auth-submit") }}
+      </form>
+      <p class="auth-switch">New to BitBench? <a href="{{ url_for('register') }}">Create an account</a></p>
+    </div>
+  </section>
+{% endblock %}

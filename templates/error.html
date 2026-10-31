@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block title %}{{ error.code }} · {{ error.name }}{% endblock %}
+{% block content %}
+  <section class="page-wrap">
+    <div class="empty-state"><p class="eyebrow">HTTP {{ error.code }}</p><h1>{{ error.name }}</h1><p>{{ error.description }}</p>{% if error.code == 400 %}<p>For an expired form, reload the page and submit it again.</p>{% endif %}<a class="button button-accent" href="{{ url_for('dashboard') }}">Back to the shop &rarr;</a></div>
+  </section>
+{% endblock %}

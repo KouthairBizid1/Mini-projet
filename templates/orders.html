@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}My orders{% endblock %}
+{% block content %}
+  <section class="page-wrap">
+    <div class="page-heading"><p class="eyebrow">YOUR BUILD HISTORY</p><h1>My orders</h1><p class="muted">Keep track of your STM32 demo purchases.</p></div>
+    {% if orders %}
+      <div class="order-list">
+        {% for order in orders %}
+          <a class="order-list-item" href="{{ url_for('order_detail', order_id=order.id) }}">
+            <div><strong>{{ order.reference }}</strong><span>{{ order.created_at.strftime("%b %d, %Y") }} &middot; {{ order.items|length }} product{% if order.items|length != 1 %}s{% endif %}</span></div>
+            <span class="status-badge status-{{ order.status }}">{{ order.status|capitalize }}</span>
+            <strong>{{ order.total_cents|money }}</strong><span aria-hidden="true">&rarr;</span>
+          </a>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-state"><h2>No orders yet.</h2><p>Your STM32 journey starts with the right board.</p><a class="button button-accent" href="{{ url_for('dashboard') }}#catalog">Shop the collection &rarr;</a></div>
+    {% endif %}
+  </section>
+{% endblock %}

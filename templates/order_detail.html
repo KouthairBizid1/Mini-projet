@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}{{ order.reference }}{% endblock %}
+{% block content %}
+  <section class="page-wrap">
+    <a class="back-link" href="{{ url_for('my_orders') }}">&larr; My orders</a>
+    <div class="page-heading order-heading">
+      <div><p class="eyebrow">ORDER DETAILS</p><h1>{{ order.reference }}</h1><p class="muted">Placed {{ order.created_at.strftime("%B %d, %Y at %H:%M") }} UTC</p></div>
+      <span class="status-badge status-{{ order.status }}">{{ order.status|capitalize }}</span>
+    </div>
+    <p class="notice">This is a demo order. No payment has been taken and no devices will be shipped.</p>
+    <div class="commerce-layout">
+      <div class="panel">
+        <h2>Your STM32 devices</h2>
+        {% for item in order.items %}
+          <div class="receipt-item"><div><strong>{{ item.product_name }}</strong><span>{{ item.product_mcu }} &middot; {{ item.quantity }} &times; {{ item.unit_price_cents|money }}</span></div><strong>{{ item.total_cents|money }}</strong></div>
+        {% endfor %}
+        <div class="summary-row summary-total"><span>Order total</span><strong>{{ order.total_cents|money }} <small>USD</small></strong></div>
+      </div>
+      <aside class="panel delivery-panel">
+        <h2>Delivery details</h2>
+        <address><strong>{{ order.full_name }}</strong><span>{{ order.address }}</span><span>{{ order.city }}, {{ order.postal_code }}</span><span>{{ order.country }}</span><span>{{ order.email }}</span></address>
+        <p class="summary-note">Payment method: pay on delivery (demo).</p>
+        {% if current_user.is_admin %}
+          <form class="status-form" method="post" action="{{ url_for('update_order_status', order_id=order.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <label for="status">Fulfilment status</label>
+            <select id="status" name="status">
+              {% for status in order_statuses %}<option value="{{ status }}"{% if order.status == status %} selected{% endif %}{% if loop.index0 < order_statuses.index(order.status) %} disabled{% endif %}>{{ status|capitalize }}</option>{% endfor %}
+            </select>
+            <button class="button button-dark" type="submit">Update status</button>
+          </form>
+        {% endif %}
+      </aside>
+    </div>
+  </section>
+{% endblock %}

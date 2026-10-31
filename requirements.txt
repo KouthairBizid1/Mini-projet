@@ -1,0 +1,7 @@
+Flask>=3.1,<4
+Flask-Admin>=2.0,<3
+Flask-Login>=0.6,<1
+Flask-Reuploaded>=1.4,<2
+Flask-SQLAlchemy>=3.1,<4
+Flask-WTF>=1.2,<2
+email-validator>=2.2,<3

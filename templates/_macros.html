@@ -1,0 +1,31 @@
+{% macro product_art(board, large=false) %}
+  <div class="product-art{% if large %} product-art-large{% endif %}" aria-hidden="true">
+    <span class="art-caption">{{ board.family }} / DEVELOPMENT BOARD</span>
+    <div class="dev-board">
+      <span class="usb-port"></span>
+      <span class="pin-rail rail-left"></span>
+      <span class="pin-rail rail-right"></span>
+      <span class="board-print">STM32</span>
+      <span class="board-processor"><span>ST</span><strong>{{ board.family[5:] }}</strong></span>
+      <span class="board-led"></span>
+      <span class="board-button"></span>
+      <span class="board-trace"></span>
+      <span class="board-id">{{ board.name }}</span>
+    </div>
+    <span class="art-caption art-caption-bottom">32-BIT ARM CORTEX</span>
+  </div>
+{% endmacro %}
+
+{% macro form_field(field, autocomplete="") %}
+  <div class="form-field">
+    {{ field.label }}
+    {% if field.type == "TextAreaField" %}
+      {{ field(rows=3, autocomplete=autocomplete, aria_describedby=field.id ~ "-errors") }}
+    {% else %}
+      {{ field(autocomplete=autocomplete, aria_describedby=field.id ~ "-errors") }}
+    {% endif %}
+    <div id="{{ field.id }}-errors">
+      {% for error in field.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+    </div>
+  </div>
+{% endmacro %}

@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% from "_macros.html" import product_art %}
+{% block title %}Shop STM32 devices{% endblock %}
+{% block content %}
+  <section class="hero">
+    <div class="hero-copy">
+      <p class="eyebrow"><span class="status-dot"></span> THE STM32 COLLECTION</p>
+      <h1>Small boards.<br><span>Big possibilities.</span></h1>
+      <p class="hero-lede">Find the STM32 development board for your next idea. From your first blinking LED to a high-performance prototype.</p>
+      <a class="button button-accent" href="#catalog">Shop STM32 devices <span aria-hidden="true">&rarr;</span></a>
+      <p class="hero-note">Nucleo &amp; Discovery boards. One focused collection.</p>
+    </div>
+    <div class="hero-hardware" aria-hidden="true">
+      <span class="hardware-tag">DESIGNED TO BUILD</span>
+      <div class="hero-chip"><span>STM32</span><strong>Make it<br>happen.</strong><span>ARM CORTEX / 32-BIT</span></div>
+      <span class="hardware-coordinate">01 / FROM IDEA TO HARDWARE</span>
+    </div>
+  </section>
+
+  <section class="shop-facts" aria-label="Store overview">
+    <div><span>01</span><p><strong>{{ board_count }} STM32 devices</strong><small>A curated development-board collection</small></p></div>
+    <div><span>02</span><p><strong>{{ available_count }} models in stock</strong><small>Availability checked at checkout</small></p></div>
+    <div><span>03</span><p><strong>Simple, transparent pricing</strong><small>USD demo prices. No hidden charges.</small></p></div>
+  </section>
+
+  <section class="library" id="catalog">
+    <div class="section-heading">
+      <div><p class="eyebrow">FIND YOUR NEXT BOARD</p><h2>Shop the collection<span class="heading-count">{{ boards|length }}</span></h2></div>
+      <form class="search-form" method="get" action="{{ url_for('dashboard') }}">
+        {% if selected_family %}<input type="hidden" name="family" value="{{ selected_family }}">{% endif %}
+        <label class="sr-only" for="board-search">Search STM32 devices</label>
+        <input id="board-search" name="q" value="{{ query }}" placeholder="Search boards or MCU..." type="search">
+        <button class="button button-outline" type="submit">Search</button>
+      </form>
+    </div>
+    <nav class="filter-chips" aria-label="Filter by STM32 family">
+      <a class="filter-chip{% if not selected_family %} active{% endif %}" href="{{ url_for('dashboard', q=query) }}#catalog">All devices</a>
+      {% for family in families %}
+        <a class="filter-chip{% if selected_family == family %} active{% endif %}" href="{{ url_for('dashboard', family=family, q=query) }}#catalog">{{ family }}</a>
+      {% endfor %}
+    </nav>
+    {% if boards %}
+      <div class="board-grid">
+        {% for board in boards %}
+          <article class="board-card">
+            <a class="product-image-link" aria-label="View {{ board.name }}" href="{{ url_for('board_detail', board_id=board.id) }}">{{ product_art(board) }}</a>
+            <div class="product-content">
+              <div class="board-card-top">
+                <span class="board-maker">{{ board.family }}</span>
+                <span class="stock-pill{% if not board.stock %} stock-out{% endif %}">{% if board.stock %}In stock{% else %}Sold out{% endif %}</span>
+              </div>
+              <h3><a href="{{ url_for('board_detail', board_id=board.id) }}">{{ board.name }}</a></h3>
+              <p class="board-mcu">{{ board.mcu }}</p>
+              <div class="spec-row"><span>{{ "%g"|format(board.clock_mhz) }} MHz</span><span>{{ board.flash_kb }} KB flash</span><span>{{ board.architecture.replace("Arm ", "") }}</span></div>
+              <div class="product-buy">
+                <div class="price">{{ board.price_cents|money }}<span>USD</span></div>
+                <form method="post" action="{{ url_for('add_to_cart', board_id=board.id) }}">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <input type="hidden" name="quantity" value="1">
+                  <button class="button button-dark" type="submit" aria-label="Add {{ board.name }} to cart"{% if not board.stock %} disabled{% endif %}>{% if board.stock %}Add to cart +{% else %}Out of stock{% endif %}</button>
+                </form>
+              </div>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-state"><h3>No devices match your search</h3><p>Try a board name, an MCU, or another STM32 family.</p><a class="text-link" href="{{ url_for('dashboard') }}#catalog">Show all devices &rarr;</a></div>
+    {% endif %}
+  </section>
+{% endblock %}

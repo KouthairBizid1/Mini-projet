@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Shop STM32 Nucleo and Discovery development boards at BitBench, an independent student demo store.">
+  <title>{% block title %}BitBench{% endblock %} · STM32 store</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <header class="topbar">
+    <a class="brand" href="{{ url_for('dashboard') }}">
+      <span class="brand-mark" aria-hidden="true">b.</span>
+      <span>bitbench<span class="brand-dot">.</span><small>STM32 STORE</small></span>
+    </a>
+    <nav class="nav-links" aria-label="Main navigation">
+      <a href="{{ url_for('dashboard') }}#catalog">Shop devices</a>
+      {% if current_user.is_authenticated %}
+        <a href="{{ url_for('my_orders') }}">My orders</a>
+      {% endif %}
+      {% if current_user.is_authenticated and current_user.is_admin %}
+        <a href="{{ url_for('admin.index') }}">Sales dashboard</a>
+      {% endif %}
+    </nav>
+    <div class="account">
+      <a class="cart-link" href="{{ url_for('view_cart') }}">Cart <span>{{ cart_count }}</span></a>
+      {% if current_user.is_authenticated %}
+        <span class="account-name">{{ current_user.username }}</span>
+        <form method="post" action="{{ url_for('logout') }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button class="button button-quiet" type="submit">Sign out</button>
+        </form>
+      {% else %}
+        <a class="button button-quiet" href="{{ url_for('login') }}">Sign in</a>
+        <a class="button button-dark" href="{{ url_for('register') }}">Create account</a>
+      {% endif %}
+    </div>
+  </header>
+  <div class="demo-banner">STUDENT DEMO <span>Sample prices in USD. No real payments or shipments.</span></div>
+  <main id="main-content">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-stack" role="status">
+          {% for category, message in messages %}
+            <p class="flash flash-{{ category }}">{{ message }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+  <footer class="footer">
+    <div><strong>bitbench.</strong><span>Independent student project. Not affiliated with STMicroelectronics.</span></div>
+    <a href="{{ url_for('api_boards') }}">Product API &rarr;</a>
+  </footer>
+</body>
+</html>
